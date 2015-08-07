@@ -1,7 +1,16 @@
 import urwid
+import parser
 
 def on_query_change(edit, new_edit_text):
-    answer.set_text(('query',u"%s" % new_edit_text))
+    try:
+        if new_edit_text:
+            answer.set_text(('query',u"%s" % parser.parse(new_edit_text)))
+        else:
+            answer.set_text(('query',u""))
+    except:
+        #do nothing here
+        print "exception"
+
 
 def on_exit_clicked(button):
     raise urwid.ExitMainLoop()
