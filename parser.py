@@ -3,6 +3,7 @@ class Parser:
     def __init__(self,string,vars={}):
         self.string = string
         self.index = 0
+        self.vars = {}
         for var in vars.keys():
             if self.vars.get(var) != None:
                 # If the key is already present then raise the exception
@@ -61,7 +62,7 @@ class Parser:
         while True:
             self.skip_whitespace()
             char = self.peek()
-            if char == '*':
+            if char  == '*':
                 self.index += 1
                 values.append(self.parse_parenthesis())
             elif char == '/':
@@ -71,6 +72,12 @@ class Parser:
                 if denominator == 0:
                     raise Exception("Division by zero kills babies")
                 values.append(1.0/denominator)
+            elif char == '(':
+                # handle the case when no multiplication is defined on brackets are given eg. 4(34)
+                values.append(self.parse_parenthesis())
+            elif char and char in '0123456789':
+                # handle the case when no multiplication is defined on brackets are given eg. (34)4
+                values.append(self.parse_parenthesis())
             else:
                 break
         value = 1.0
