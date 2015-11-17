@@ -1,0 +1,23 @@
+#!/usr/bin/evn python
+
+import argparse
+import parser as lp
+
+parser = argparse.ArgumentParser(description='A smart calculator app')
+group = parser.add_mutually_exclusive_group(required=True)
+group.add_argument("-c","--calculate",help="Expression to calculate")
+group.add_argument("-x","--convert",help="Convert from one unit to another")
+
+if __name__ == '__main__':
+    args = parser.parse_args()
+    
+    if args.calculate:
+        expr = args.calculate
+        value = lp.evaluate(expr)
+        print "Value:"+str(value)
+
+    if args.convert:
+        print "Coming Soon"
+
+
+
