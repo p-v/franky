@@ -1,5 +1,5 @@
 import urwid
-import parser1 as parser
+import parser as parser
 
 def on_query_change(edit, new_edit_text):
     try:

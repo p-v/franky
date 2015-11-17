@@ -87,7 +87,7 @@ class Parser:
             self.index += 1
             value = self.parse_expression()
             self.skip_whitespace()
-            if self.peek() == ')':
+            if self.peek() != ')':
                 raise Exception("No closing parenthesis found at character " + str(self.index))
             self.index += 1
             return value

@@ -20,6 +20,9 @@ class TestParser(unittest.TestCase):
     def test_addition_multiplication(self):
         self.assertEqual(p("5*2-3"),7)
         self.assertEqual(p("-3+5*2"),7)
+    def test_addition_with_parenthesis(self):
+        self.assertEqual(p("(5 + 4)"),9)
+        self.assertEqual(p("(5 + 4)*4"),36)
 
 if __name__ == '__main__':
     unittest.main()
