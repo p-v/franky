@@ -1,10 +1,10 @@
 import urwid
-import parser
+import parser1 as parser
 
 def on_query_change(edit, new_edit_text):
     try:
         if new_edit_text:
-            answer.set_text(('query',u"%s" % parser.parse(new_edit_text)))
+            answer.set_text(('query',u"%s" % parser.evaluate(new_edit_text)))
         else:
             answer.set_text(('query',u""))
     except:

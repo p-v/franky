@@ -1,74 +1,183 @@
-import re
+class Parser:
+    
+    def __init__(self,string,vars={}):
+        self.string = string
+        self.index = 0
+        for var in vars.keys():
+            if self.vars.get(var) != None:
+                # If the key is already present then raise the exception
+                raise Exception("Cannot redefine the value of " + var)
+            self.vars[var] = vars[var]
 
-token_pat = re.compile("\s*(?:(\d+)|(.))")
 
-class end_token:
-    lbp = 0
+    def get_value(self):
+        value = self.parse_expression()
+        self.skip_whitespace()
+        if self.has_next():
+            raise Exception("Unexpected character found '" + self.peek() +"' at index " + str(self.index))
+        return value
 
-class literal_token:
-    def __init__(self,value):
-        self.value = int(value)
 
-    def nud(self):
-        return self.value
+    def peek(self):
+        return self.string[self.index : self.index + 1]
 
-class operator_add_token:
-    lbp = 10
-    def nud(self):
-        return expression(100)
 
-    def led(self,left):
-        right = expression(10)
-        return left + right
+    def has_next(self):
+        return self.index < len(self.string)
 
-class operator_substract_token:
-    lbp = 10
-    def nud(self):
-        return -expression(100)
-    def led(self,left):
-        right = expression(10)
-        return left - right
 
-class operator_division_token:
-    lbp = 20
-    def led(self,left):
-        return left / expression(20)
+    def skip_whitespace(self):
+        while self.has_next():
+            if self.peek() in ' \t\n\r':
+                self.index += 1
+            else:
+                return
 
-class operator_multiply_token:
-    lbp = 20
-    def led(self,left):
-        return left * expression(20)
 
-def tokenize(program):
-    for number, operator in token_pat.findall(program):
-        if number:
-            yield literal_token(number)
-        elif operator == '+':
-            yield operator_add_token()
-        elif operator == "/":
-            yield operator_division_token()
-        elif operator == "-":
-            yield operator_substract_token()
-        elif operator == "*":
-            yield operator_multiply_token()
+    def parse_expression(self):
+        value = self.parse_addition()
+        return value
+
+
+    def parse_addition(self):
+        values = [self.parse_multiplication()]
+        while True:
+            self.skip_whitespace()
+            char = self.peek()
+            if char == '+':
+                self.index += 1
+                values.append(self.parse_multiplication())
+            elif char == '-':
+                self.index += 1
+                values.append(-1 * self.parse_multiplication())
+            else:
+                break
+
+        return sum(values)
+
+
+    def parse_multiplication(self):
+        values = [self.parse_parenthesis()]
+        while True:
+            self.skip_whitespace()
+            char = self.peek()
+            if char == '*':
+                self.index += 1
+                values.append(self.parse_parenthesis())
+            elif char == '/':
+                div_index = self.index
+                self.index += 1
+                denominator = self.parse_parenthesis()
+                if denominator == 0:
+                    raise Exception("Division by zero kills babies")
+                values.append(1.0/denominator)
+            else:
+                break
+        value = 1.0
+        for factor in values:
+            value *= factor
+        return value
+
+
+    def parse_parenthesis(self):
+        self.skip_whitespace()
+        char = self.peek()
+
+        if char == '(':
+            self.index += 1
+            value = self.parse_expression()
+            self.skip_whitespace()
+            if self.peek() == ')':
+                raise Exception("No closing parenthesis found at character " + str(self.index))
+            self.index += 1
+            return value
         else:
-            raise SyntaxError('Unknown Operator')
-    yield end_token()
+            return self.parse_negative()
 
-def expression(rbp=0):
-    global token
-    t = token
-    token = next()
-    left = t.nud()
-    while rbp < token.lbp:
-        t = token
-        token = next()
-        left = t.led(left)
-    return left
 
-def parse(program):
-    global token, next
-    next = tokenize(program).next
-    token = next()
-    return expression()
+    def parse_negative(self):
+        self.skip_whitespace()
+        char = self.peek()
+        if char == '-':
+            self.index += 1
+            return -1 * self.parse_parenthesis()
+        else:
+            return self.parse_value()
+
+
+    def parse_value(self):
+        self.skip_whitespace()
+        char = self.peek()
+        if char in '0123456789':
+            return self.parse_number()
+        else:
+            return self.parse_variable()
+
+
+    def parse_variable(self):
+        self.skip_whitespace()
+        var = ''
+        while self.has_next():
+            char = self.peek()
+            if char.lower() in '_abcdefghijklmnopqrstuvwxyz0123456789':
+                var += char
+                self.index += 1
+            else:
+                break
+
+        value = self.vars.get(var,None)
+        if value == None:
+            raise Exception("Unrecognized variable '"+var+"'")
+        return float(value)
+
+
+    def parse_number(self):
+        self.skip_whitespace()
+        str_value = ''
+        decimal_found = False
+        char = ''
+
+        while self.has_next():
+            char = self.peek()
+            if char == '.':
+                if decimal_found:
+                    raise Exception("Found an extra period in a number at character "+str(self.index) +"")
+                decimal_found = True
+                str_value += '.'
+            elif char in '0123456789':
+                str_value += char
+            else:
+                break
+            self.index += 1
+
+        if len(str_value) == 0:
+            if char == '':
+                raise Exception("Unexpected end found")
+            else:
+                raise Exception("Excepted number. Found "+ char)
+
+        return float(str_value)
+
+
+
+
+
+
+def evaluate(expression,vars={}):
+    try:
+        p = Parser(expression,vars)
+        value = p.get_value()
+    except Exception as ex:
+        msg = ex.message
+        raise Exception(msg)
+
+    if int(value) == value:
+        return int(value)
+
+    epsilon = 0.0000000001
+    if int(value + epsilon) != int(value):
+        return int(value+epsilon)
+    elif int(value-epsilon) != int(value):
+        return int(value)
+    return value
 
