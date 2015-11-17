@@ -1,5 +1,6 @@
 #!/usr/bin/evn python
 
+from __future__ import print_function
 import argparse
 import parser as lp
 
@@ -14,10 +15,10 @@ if __name__ == '__main__':
     if args.calculate:
         expr = args.calculate
         value = lp.evaluate(expr)
-        print "Value:"+str(value)
+        print("Value:"+str(value))
 
     if args.convert:
-        print "Coming Soon"
+        print("Coming Soon")
 
 
 
