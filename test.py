@@ -4,10 +4,13 @@ from parser import evaluate as p
 class TestParser(unittest.TestCase):
     def test_addition(self):
         self.assertEqual(p("3+5"),8)
+        self.assertEqual(p("3 + 5"),8)
     def test_substraction(self):
         self.assertEqual(p("3-5"),-2)
+        self.assertEqual(p("3 - 5"),-2)
     def test_division(self):
         self.assertEqual(p("10/2"),5)
+        self.assertEqual(p("10 / 2"),5)
     def test_multiplication(self):
         self.assertEqual(p("3*4"),12)
         self.assertEqual(p("-1*35"),-35)
@@ -39,6 +42,12 @@ class TestParser(unittest.TestCase):
     def test_paranthesis_substraction(self):
         self.assertEqual(p("(30)-3"),27)
         self.assertEqual(p("-3(30)"),-90)
+        self.assertEqual(p("-3 (30)"),-90)
+        self.assertEqual(p("(33-3)(30)"),900)
+    def test_pi(self):
+        self.assertEqual(p("pi * 3"),9.42477796076938)
+        self.assertEqual(p("(pi)* 3"),9.42477796076938)
+        self.assertEqual(p("(pi)3"),9.42477796076938)
 
 if __name__ == '__main__':
     unittest.main()

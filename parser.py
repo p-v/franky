@@ -1,9 +1,14 @@
+import math
+
 class Parser:
     
     def __init__(self,string,vars={}):
         self.string = string
         self.index = 0
-        self.vars = {}
+        self.vars = {
+                "pi" : math.pi,
+                "e" : math.e 
+                  }
         for var in vars.keys():
             if self.vars.get(var) != None:
                 # If the key is already present then raise the exception
@@ -164,9 +169,6 @@ class Parser:
                 raise Exception("Excepted number. Found "+ char)
 
         return float(str_value)
-
-
-
 
 
 
