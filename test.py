@@ -48,6 +48,9 @@ class TestParser(unittest.TestCase):
         self.assertEqual(p("pi * 3"),9.42477796076938)
         self.assertEqual(p("(pi)* 3"),9.42477796076938)
         self.assertEqual(p("(pi)3"),9.42477796076938)
+    def test_exponent(self):
+        self.assertEqual(p("3^2"),9)
+        self.assertEqual(p("5 ^ 3"),125)
 
 if __name__ == '__main__':
     unittest.main()

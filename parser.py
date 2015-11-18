@@ -61,28 +61,42 @@ class Parser:
 
         return sum(values)
 
+    def parse_exponent(self):
+        values = self.parse_parenthesis()
+        exp = 1
+        while True:
+            self.skip_whitespace()
+            char = self.peek()
+            if char == '^':
+                self.index += 1
+                exp = self.parse_parenthesis()
+            else:
+                break
+        return values**exp
+
+
 
     def parse_multiplication(self):
-        values = [self.parse_parenthesis()]
+        values = [self.parse_exponent()]
         while True:
             self.skip_whitespace()
             char = self.peek()
             if char  == '*':
                 self.index += 1
-                values.append(self.parse_parenthesis())
+                values.append(self.parse_exponent())
             elif char == '/':
                 div_index = self.index
                 self.index += 1
-                denominator = self.parse_parenthesis()
+                denominator = self.parse_exponent()
                 if denominator == 0:
                     raise Exception("Division by zero kills babies")
                 values.append(1.0/denominator)
             elif char == '(':
                 # handle the case when no multiplication is defined on brackets are given eg. 4(34)
-                values.append(self.parse_parenthesis())
+                values.append(self.parse_exponent())
             elif char and char in '0123456789':
                 # handle the case when no multiplication is defined on brackets are given eg. (34)4
-                values.append(self.parse_parenthesis())
+                values.append(self.parse_exponent())
             else:
                 break
         value = 1.0
